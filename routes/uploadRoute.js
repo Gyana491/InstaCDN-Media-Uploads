@@ -94,10 +94,11 @@ router.get('/files', (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
-        const uploadDir = 'uploads/';
+        const uploadDir = path.join(__dirname, '..', 'uploads');
 
         fs.readdir(uploadDir, (err, files) => {
             if (err) {
+                console.error('Error reading directory:', err);
                 return res.status(500).json({ error: 'Error reading files' });
             }
 
@@ -126,6 +127,7 @@ router.get('/files', (req, res) => {
             });
         });
     } catch (error) {
+        console.error('Error in /files route:', error);
         res.status(500).json({ error: error.message });
     }
 });
