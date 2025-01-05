@@ -93,7 +93,7 @@ router.post('/upload', (req, res) => {
 router.get('/files', (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
+        const ITEMS_PER_PAGE = 20; // Fixed items per page
         const uploadDir = path.join(__dirname, '..', 'uploads');
 
         fs.readdir(uploadDir, (err, files) => {
@@ -115,9 +115,9 @@ router.get('/files', (req, res) => {
             }).sort((a, b) => b.uploadDate - a.uploadDate);
 
             const totalFiles = fileStats.length;
-            const totalPages = Math.ceil(totalFiles / limit);
-            const startIndex = (page - 1) * limit;
-            const endIndex = startIndex + limit;
+            const totalPages = Math.max(1, Math.ceil(totalFiles / ITEMS_PER_PAGE));
+            const startIndex = (page - 1) * ITEMS_PER_PAGE;
+            const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalFiles);
 
             res.json({
                 files: fileStats.slice(startIndex, endIndex),

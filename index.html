@@ -156,7 +156,7 @@
         // Load files from server
         async function loadFiles(page) {
             try {
-                const response = await fetch(`/files?page=${page}&limit=${itemsPerPage}`);
+                const response = await fetch(`/files?page=${page}`);
                 const data = await response.json();
                 
                 displayFiles(data.files);
