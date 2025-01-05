@@ -3,6 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { compressImage } = require("../utils/imageCompression");
+require("dotenv").config();
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ 
     storage: storage
 }).array('files', 10);
+
 
 // Add this near the top of the file, after the imports
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -49,7 +51,7 @@ router.post('/upload', (req, res) => {
                     const now = new Date();
                     const timestamp = now.toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
                     const sanitizedOriginalname = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-                    const filename = `${timestamp}-${sanitizedOriginalname}`;
+                    const filename = `${sanitizedOriginalname}-${timestamp}`;
                     const filepath = path.join(uploadDir, filename);
 
                     const isImage = file.mimetype.startsWith('image/');
@@ -63,6 +65,7 @@ router.post('/upload', (req, res) => {
                     uploadedFiles.push({
                         filename: filename,
                         path: `/uploads/${filename}`,
+                        url: `${process.env.HOST}/uploads/${filename}`,
                         size: file.size,
                         mimetype: file.mimetype
                     });
