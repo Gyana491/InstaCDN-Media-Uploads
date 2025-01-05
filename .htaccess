@@ -1,5 +1,5 @@
 DirectoryIndex disabled
-# Redirect traffic to your port 8000
+# Redirect traffic to your port 3030
 RewriteEngine On
 RewriteBase /
 RewriteRule ^(.*)?$ http://127.0.0.1:3030/$1 [P,L]
