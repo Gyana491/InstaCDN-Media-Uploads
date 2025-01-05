@@ -2,23 +2,18 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const cors = require("cors");
 const { compressImage } = require("../utils/imageCompression");
 require("dotenv").config();
 
 const router = express.Router();
 
-// Add CORS headers middleware
-router.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
-});
+// Enable CORS for all routes in this router
+router.use(cors({
+    origin: '*', // Allow all origins
+    methods: ['GET', 'POST'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+}));
 
 // Configure multer for memory storage instead of disk
 const storage = multer.memoryStorage();
