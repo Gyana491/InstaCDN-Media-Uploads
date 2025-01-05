@@ -7,6 +7,19 @@ require("dotenv").config();
 
 const router = express.Router();
 
+// Add CORS headers middleware
+router.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
+
 // Configure multer for memory storage instead of disk
 const storage = multer.memoryStorage();
 
