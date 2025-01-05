@@ -51,7 +51,7 @@ router.post('/upload', (req, res) => {
                     const now = new Date();
                     const timestamp = now.toISOString().replace(/[-T:.Z]/g, '').slice(0, 14);
                     const sanitizedOriginalname = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-                    const filename = `${sanitizedOriginalname}-${timestamp}`;
+                    const filename = `${timestamp}-${sanitizedOriginalname}`;
                     const filepath = path.join(uploadDir, filename);
 
                     const isImage = file.mimetype.startsWith('image/');
@@ -93,13 +93,23 @@ router.post('/upload', (req, res) => {
 router.get('/files', (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const ITEMS_PER_PAGE = 20; // Fixed items per page
+        const ITEMS_PER_PAGE = 20;
         const uploadDir = path.join(__dirname, '..', 'uploads');
 
         fs.readdir(uploadDir, (err, files) => {
             if (err) {
                 console.error('Error reading directory:', err);
                 return res.status(500).json({ error: 'Error reading files' });
+            }
+
+            // If no files exist, return empty response with valid pagination
+            if (!files || files.length === 0) {
+                return res.json({
+                    files: [],
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalFiles: 0
+                });
             }
 
             const fileStats = files.map(filename => {
@@ -115,13 +125,26 @@ router.get('/files', (req, res) => {
             }).sort((a, b) => b.uploadDate - a.uploadDate);
 
             const totalFiles = fileStats.length;
-            const totalPages = Math.max(1, Math.ceil(totalFiles / ITEMS_PER_PAGE));
-            const startIndex = (page - 1) * ITEMS_PER_PAGE;
+            
+            // If files are less than ITEMS_PER_PAGE, show all files but maintain pagination structure
+            if (totalFiles <= ITEMS_PER_PAGE) {
+                return res.json({
+                    files: fileStats,
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalFiles
+                });
+            }
+
+            // Normal pagination for when files exceed ITEMS_PER_PAGE
+            const totalPages = Math.ceil(totalFiles / ITEMS_PER_PAGE);
+            const validPage = Math.min(Math.max(1, page), totalPages); // Ensure page is within bounds
+            const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
             const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalFiles);
 
             res.json({
                 files: fileStats.slice(startIndex, endIndex),
-                currentPage: page,
+                currentPage: validPage,
                 totalPages,
                 totalFiles
             });
