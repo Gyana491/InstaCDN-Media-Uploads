@@ -8,11 +8,14 @@ require("dotenv").config();
 
 const router = express.Router();
 
-// Enable CORS for all routes in this router
+// Enable CORS for all routes with maximum permissiveness
 router.use(cors({
-    origin: '*', // Allow all origins
-    methods: ['GET', 'POST'], // Allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+    origin: '*',
+    methods: '*',
+    allowedHeaders: '*',
+    exposedHeaders: '*',
+    credentials: true,
+    maxAge: 86400 // 24 hours
 }));
 
 // Configure multer for memory storage instead of disk
